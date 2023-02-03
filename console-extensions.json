@@ -1,0 +1,87 @@
+[
+  {
+    "type": "console.flag/model",
+    "properties": {
+      "flag": "CONSOLE_CRONTABS",
+      "model": {
+        "group": "stable.example.com",
+        "kind": "CronTab",
+        "version": "v1"
+      }
+    }
+  },
+  {
+    "type": "console.context-provider",
+    "properties": {
+      "provider": { "$codeRef": "modalProvider.ModalProvider" },
+      "useValueHook": { "$codeRef": "modalProvider.useModalValue" }
+    }
+  },
+  {
+    "type": "console.navigation/resource-ns",
+    "properties": {
+      "id": "crontab",
+      "name": "%plugin__crontab-plugin~CronTabs%",
+      "perspective": "admin",
+      "section": "workloads",
+      "insertAfter": "WorkloadsSeparator",
+      "insertBefore": "cronjobs",
+      "model": {
+        "group": "stable.example.com",
+        "kind": "CronTab",
+        "version": "v1"
+      }
+    }
+  },
+  {
+    "type": "console.page/resource/list",
+    "properties": {
+      "model": {
+        "group": "stable.example.com",
+        "kind": "CronTab",
+        "version": "v1"
+      },
+      "component": {
+        "$codeRef": "CronTabList"
+      }
+    }
+  },
+  {
+    "type": "console.page/resource/details",
+    "properties": {
+      "model": {
+        "group": "stable.example.com",
+        "kind": "CronTab",
+        "version": "v1"
+      },
+      "component": { "$codeRef": "CronTabDetails" }
+    }
+  },
+  {
+    "type": "console.yaml-template",
+    "properties": {
+      "name": "default",
+      "model": {
+        "group": "stable.example.com",
+        "kind": "CronTab",
+        "version": "v1"
+      },
+      "template": {
+        "$codeRef": "yamlTemplates.defaultCronTabYamlTemplate"
+      }
+    }
+  },
+  {
+    "type": "console.action/resource-provider",
+    "properties": {
+      "model": {
+        "group": "stable.example.com",
+        "kind": "CronTab",
+        "version": "v1"
+      },
+      "provider": {
+        "$codeRef": "useCronTabActionsProvider.useCronTabActionsProvider"
+      }
+    }
+  }
+]
