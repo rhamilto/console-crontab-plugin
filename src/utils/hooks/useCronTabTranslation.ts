@@ -1,13 +1,6 @@
-import { getI18n, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 /**
  * A Hook for using the i18n translation.
  */
 export const useCronTabTranslation = () => useTranslation('plugin__crontab-plugin');
-
-/**
- * a function to perform translation to 'plugin__crontab-plugin' namespace
- * @param value string to translate
- */
-// skipcq: JS-C1002
-export const t = (value: string) => getI18n().t(value, { ns: 'plugin__crontab-plugin' });

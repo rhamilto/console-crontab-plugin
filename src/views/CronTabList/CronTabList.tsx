@@ -1,8 +1,5 @@
 import React from 'react';
-
-import { CronTabModel } from '@crontab-model/CronTabModel';
-import { CronTabKind } from '@crontab-model/CronTabModel';
-import { modelToGroupVersionKind, modelToRef } from '@crontab-utils/utils';
+import { CronTabKind } from '@crontab-model/types';
 import {
   K8sResourceCommon,
   ListPageBody,
@@ -14,14 +11,11 @@ import {
   useListPageFilter,
   VirtualizedTable,
 } from '@openshift-console/dynamic-plugin-sdk';
+import { useCronTabTranslation } from '@crontab-utils/hooks/useCronTabTranslation';
+import { cronTabGroupVersionKind } from '@crontab-utils/utils';
 import { ResourceLink, RowProps, TableData } from '@openshift-console/dynamic-plugin-sdk';
 import { TableColumn } from '@openshift-console/dynamic-plugin-sdk';
 import { sortable } from '@patternfly/react-table';
-
-import CronTabRowActions from './CronTabRowActions';
-
-// import { customActionsToggle, defaultActions } from './components/CronTabActions';
-import './CronTabList.scss';
 
 type CronTabListProps = {
   namespace: string;
@@ -30,22 +24,20 @@ type CronTabListProps = {
 const CronTabList: React.FC<CronTabListProps> = ({ namespace }) => {
   const [cronTabs, loaded, loadError] = useK8sWatchResource<K8sResourceCommon[]>({
     isList: true,
-    groupVersionKind: {
-      group: 'stable.example.com',
-      kind: 'CronTab',
-      version: 'v1',
-    },
+    groupVersionKind: cronTabGroupVersionKind,
     namespaced: true,
     namespace,
   });
-  // const { t } = useTranslation();
+  const { t } = useCronTabTranslation();
   const columns = useCronTabColumns();
   const [data, filteredData, onFilterChange] = useListPageFilter(cronTabs);
 
   return (
     <>
-      <ListPageHeader title={'CronTab'}>
-        <ListPageCreate groupVersionKind={modelToRef(CronTabModel)}>Create CronTab</ListPageCreate>
+      <ListPageHeader title={t('CronTab')}>
+        {/* groupVersionKind should take an object but there is discrepancy in the prop types
+        https://issues.redhat.com/browse/OCPBUGS-13808 will update the types */}
+        <ListPageCreate groupVersionKind={"stable.example.com~v1~CronTab"}>Create CronTab</ListPageCreate>
       </ListPageHeader>
       <ListPageBody>
         <ListPageFilter data={data} loaded={loaded} onFilterChange={onFilterChange} />
@@ -65,88 +57,71 @@ const CronTabList: React.FC<CronTabListProps> = ({ namespace }) => {
 const cronTabListRow: React.FC<RowProps<CronTabKind>> = ({ obj, activeColumnIDs }) => {
   return (
     <>
-      <TableData id="name" activeColumnIDs={activeColumnIDs} className="pf-m-width-15">
+      <TableData id="name" activeColumnIDs={activeColumnIDs} >
         <ResourceLink
-          groupVersionKind={modelToGroupVersionKind(CronTabModel)}
+          groupVersionKind={cronTabGroupVersionKind}
           name={obj.metadata.name}
           namespace={obj.metadata.namespace}
         />
       </TableData>
-      <TableData id="namespace" activeColumnIDs={activeColumnIDs} className="pf-m-width-15">
+      <TableData id="namespace" activeColumnIDs={activeColumnIDs} >
         <ResourceLink kind="Namespace" name={obj.metadata.namespace} />
       </TableData>
-      <TableData id="cronspec" activeColumnIDs={activeColumnIDs} className="pf-m-width-15">
+      <TableData id="cronspec" activeColumnIDs={activeColumnIDs} >
         {obj.spec.cronSpec}
       </TableData>
-      <TableData id="image" activeColumnIDs={activeColumnIDs} className="pf-m-width-15">
+      <TableData id="image" activeColumnIDs={activeColumnIDs} >
         {obj.spec.image}
       </TableData>
-      <TableData id="replicas" activeColumnIDs={activeColumnIDs} className="pf-m-width-15">
-        {obj.spec.replicas || ''}
+      <TableData id="replicas" activeColumnIDs={activeColumnIDs}>
+        {obj.spec.replicas}
       </TableData>
-      <TableData id="created" activeColumnIDs={activeColumnIDs} className="pf-m-width-15">
+      <TableData id="created" activeColumnIDs={activeColumnIDs} >
         <Timestamp timestamp={obj.metadata.creationTimestamp} />
-      </TableData>
-      <TableData
-        id="actions"
-        activeColumnIDs={activeColumnIDs}
-        className="dropdown-kebab-pf pf-c-table__action"
-      >
-        <CronTabRowActions obj={obj} />
       </TableData>
     </>
   );
 };
 
 const useCronTabColumns = () => {
+  const { t } = useCronTabTranslation();
   const columns: TableColumn<K8sResourceCommon>[] = React.useMemo(
     () => [
       {
-        title: 'Name',
+        title: t('Name'),
         id: 'name',
         transforms: [sortable],
         sort: 'metadata.name',
-        props: { className: 'pf-m-width-15' },
       },
       {
-        title: 'Namespace',
+        title: t('Namespace'),
         id: 'namespace',
         transforms: [sortable],
         sort: 'metadata.namespace',
-        props: { className: 'pf-m-width-15' },
       },
       {
-        title: 'CronSpec',
+        title: t('CronSpec'),
         id: 'cronspec',
         transforms: [sortable],
         sort: 'spec.cronSpec',
-        props: { className: 'pf-m-width-15' },
       },
       {
-        title: 'Image',
+        title: t('Image'),
         id: 'image',
         transforms: [sortable],
         sort: 'spec.image',
-        props: { className: 'pf-m-width-15' },
       },
       {
-        title: 'Replicas',
+        title: t('Replicas'),
         id: 'replicas',
         transforms: [sortable],
         sort: 'spec.replicas',
-        props: { className: 'pf-m-width-15' },
       },
       {
-        title: 'Created',
+        title: t('Created'),
         id: 'created',
         transforms: [sortable],
         sort: 'metadata.creationTimestamp',
-        props: { className: 'pf-m-width-15' },
-      },
-      {
-        title: '',
-        id: 'actions',
-        props: { className: 'dropdown-kebab-pf pf-c-table__action' },
       },
     ],
     [],

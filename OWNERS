@@ -1,0 +1,11 @@
+reviewers:
+  - jhadvig
+  - rhamilto
+  - spadgett
+  - TheRealJon
+approvers:
+  - jhadvig
+  - rhamilto
+  - spadgett
+  - TheRealJon
+component: CronTab Dynamic Plugin

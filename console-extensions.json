@@ -2,19 +2,12 @@
   {
     "type": "console.flag/model",
     "properties": {
-      "flag": "CONSOLE_CRONTABS",
+      "flag": "CRONTAB",
       "model": {
         "group": "stable.example.com",
         "kind": "CronTab",
         "version": "v1"
       }
-    }
-  },
-  {
-    "type": "console.context-provider",
-    "properties": {
-      "provider": { "$codeRef": "modalProvider.ModalProvider" },
-      "useValueHook": { "$codeRef": "modalProvider.useModalValue" }
     }
   },
   {
@@ -30,6 +23,9 @@
         "group": "stable.example.com",
         "kind": "CronTab",
         "version": "v1"
+      },
+      "flags": {
+        "required": ["CRONTAB"]
       }
     }
   },
@@ -43,18 +39,10 @@
       },
       "component": {
         "$codeRef": "CronTabList"
-      }
-    }
-  },
-  {
-    "type": "console.page/resource/details",
-    "properties": {
-      "model": {
-        "group": "stable.example.com",
-        "kind": "CronTab",
-        "version": "v1"
       },
-      "component": { "$codeRef": "CronTabDetails" }
+      "flags": {
+        "required": ["CRONTAB"]
+      }
     }
   },
   {
@@ -68,19 +56,9 @@
       },
       "template": {
         "$codeRef": "yamlTemplates.defaultCronTabYamlTemplate"
-      }
-    }
-  },
-  {
-    "type": "console.action/resource-provider",
-    "properties": {
-      "model": {
-        "group": "stable.example.com",
-        "kind": "CronTab",
-        "version": "v1"
       },
-      "provider": {
-        "$codeRef": "useCronTabActionsProvider.useCronTabActionsProvider"
+      "flags": {
+        "required": ["CRONTAB"]
       }
     }
   }

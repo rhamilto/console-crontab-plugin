@@ -16,8 +16,8 @@
     "paths": {
       "@crontab-utils": ["src/utils"],
       "@crontab-utils/*": ["src/utils/*"],
-      "@crontab-model": ["src/models"],
-      "@crontab-model/*": ["src/models/*"]
+      "@crontab-model": ["src/types"],
+      "@crontab-model/*": ["src/types/*"]
     }
   },
   "include": ["src"],
