@@ -1,0 +1,65 @@
+[
+  {
+    "type": "console.flag/model",
+    "properties": {
+      "flag": "CRONTAB",
+      "model": {
+        "group": "stable.example.com",
+        "kind": "CronTab",
+        "version": "v1"
+      }
+    }
+  },
+  {
+    "type": "console.navigation/resource-ns",
+    "properties": {
+      "id": "crontab",
+      "name": "%plugin__crontab-plugin~CronTabs%",
+      "perspective": "admin",
+      "section": "workloads",
+      "insertAfter": "WorkloadsSeparator",
+      "insertBefore": "cronjobs",
+      "model": {
+        "group": "stable.example.com",
+        "kind": "CronTab",
+        "version": "v1"
+      },
+      "flags": {
+        "required": ["CRONTAB"]
+      }
+    }
+  },
+  {
+    "type": "console.page/resource/list",
+    "properties": {
+      "model": {
+        "group": "stable.example.com",
+        "kind": "CronTab",
+        "version": "v1"
+      },
+      "component": {
+        "$codeRef": "CronTabList"
+      },
+      "flags": {
+        "required": ["CRONTAB"]
+      }
+    }
+  },
+  {
+    "type": "console.yaml-template",
+    "properties": {
+      "name": "default",
+      "model": {
+        "group": "stable.example.com",
+        "kind": "CronTab",
+        "version": "v1"
+      },
+      "template": {
+        "$codeRef": "yamlTemplates.defaultCronTabYamlTemplate"
+      },
+      "flags": {
+        "required": ["CRONTAB"]
+      }
+    }
+  }
+]

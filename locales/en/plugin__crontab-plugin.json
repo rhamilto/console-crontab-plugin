@@ -1,0 +1,11 @@
+{
+  "Actions": "Actions",
+  "Created": "Created",
+  "CronSpec": "CronSpec",
+  "CronTab": "CronTab",
+  "CronTabs": "CronTabs",
+  "Image": "Image",
+  "Name": "Name",
+  "Namespace": "Namespace",
+  "Replicas": "Replicas"
+}
