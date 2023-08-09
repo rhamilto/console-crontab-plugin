@@ -7,6 +7,8 @@ metadata:
     {{- include "crontab-plugin.labels" . | nindent 4 }}
 spec:
   displayName: {{ default (printf "%s Plugin" (include "crontab-plugin.name" .)) .Values.plugin.description }}
+  i18n:
+    loadType: Preload
   backend:
     type: Service
     service:
