@@ -1,25 +1,34 @@
 import React from 'react';
 import { CronTabKind } from '@crontab-model/types';
 import {
+  getGroupVersionKindForModel,
   K8sResourceCommon,
   ListPageBody,
   ListPageCreate,
   ListPageFilter,
   ListPageHeader,
   Timestamp,
+  useAccessReview,
   useK8sWatchResource,
   useListPageFilter,
   VirtualizedTable,
 } from '@openshift-console/dynamic-plugin-sdk';
 import { useCronTabTranslation } from '@crontab-utils/hooks/useCronTabTranslation';
-import { cronTabGroupVersionKind } from '@crontab-utils/utils';
-import { ResourceLink, RowProps, TableData } from '@openshift-console/dynamic-plugin-sdk';
-import { TableColumn } from '@openshift-console/dynamic-plugin-sdk';
+import { ResourceLink, RowProps, TableColumn, TableData, useDeleteModal } from '@openshift-console/dynamic-plugin-sdk';
 import { sortable } from '@patternfly/react-table';
+import { Dropdown, DropdownItem, DropdownPosition, KebabToggle } from '@patternfly/react-core';
+import { useHistory } from "react-router-dom";
+import { CronTabModel } from 'src/models';
 
 type CronTabListProps = {
   namespace: string;
 };
+
+type CronTabKebabProps = {
+  obj: CronTabKind;
+};
+
+const cronTabGroupVersionKind = getGroupVersionKindForModel(CronTabModel);
 
 const CronTabList: React.FC<CronTabListProps> = ({ namespace }) => {
   const [cronTabs, loaded, loadError] = useK8sWatchResource<K8sResourceCommon[]>({
@@ -34,14 +43,12 @@ const CronTabList: React.FC<CronTabListProps> = ({ namespace }) => {
 
   return (
     <>
-      <ListPageHeader title={t('CronTab')}>
-        {/* groupVersionKind should take an object but there is discrepancy in the prop types
-        https://issues.redhat.com/browse/OCPBUGS-13808 will update the types */}
-        <ListPageCreate groupVersionKind={"stable.example.com~v1~CronTab"}>Create CronTab</ListPageCreate>
+      <ListPageHeader title={t('CronTabs')}>
+        <ListPageCreate groupVersionKind={cronTabGroupVersionKind}>{t('Create CronTab')}</ListPageCreate>
       </ListPageHeader>
       <ListPageBody>
         <ListPageFilter data={data} loaded={loaded} onFilterChange={onFilterChange} />
-        <VirtualizedTable<K8sResourceCommon>
+        <VirtualizedTable<CronTabKind>
           data={filteredData}
           unfilteredData={cronTabs}
           loaded={loaded}
@@ -54,30 +61,101 @@ const CronTabList: React.FC<CronTabListProps> = ({ namespace }) => {
   );
 };
 
+const CronTabKebab: React.FC<CronTabKebabProps> = ({ obj }) => {
+  const { t } = useCronTabTranslation();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const launchDeleteModal = useDeleteModal(obj);
+  const { name, namespace } = obj.metadata
+  const canEditCronTab = useAccessReview({
+    group: CronTabModel.apiGroup,
+    resource: CronTabModel.labelPlural,
+    verb: 'update',
+    name,
+    namespace,
+  });
+  const canDeleteCronTab = useAccessReview({
+    group: CronTabModel.apiGroup,
+    resource: CronTabModel.labelPlural,
+    verb: 'delete',
+    name,
+    namespace,
+  });
+  const history = useHistory();
+
+  const onToggle = (isOpen: boolean) => {
+    setIsOpen(isOpen);
+  };
+
+  const onFocus = () => {
+    const element = document.getElementById('toggle-kebab');
+    element.focus();
+  };
+
+  const onSelect = () => {
+    setIsOpen(false);
+    onFocus();
+  };
+
+  const editURL=`/k8s/ns/${namespace}/${cronTabGroupVersionKind.group}~${cronTabGroupVersionKind.version}~${cronTabGroupVersionKind.kind}/${encodeURIComponent(name)}/yaml`;
+
+  const dropdownItems = [
+    <DropdownItem key="edit" component="button" onClick={() => history.push(editURL)} isDisabled={!canEditCronTab[0]}>
+      {t('Edit CronTab')}
+    </DropdownItem>,
+    <DropdownItem key="delete" component="button" onClick={() => launchDeleteModal()} isDisabled={!canDeleteCronTab[0]}>
+      {t('Delete CronTab')}
+    </DropdownItem>
+  ];
+
+  return (
+    <Dropdown
+      onSelect={onSelect}
+      toggle={<KebabToggle id="toggle-kebab" onToggle={onToggle} />}
+      isOpen={isOpen}
+      isPlain
+      dropdownItems={dropdownItems}
+      position={DropdownPosition.right}
+    />
+  );
+};
+
+const tableColumnInfo = [
+  { id: 'name' },
+  { id: 'namespace' },
+  { id: 'cronspec' },
+  { id: 'image' },
+  { id: 'replicas' },
+  { id: 'created' },
+  { className: 'pf-c-table__action', id: '' },
+];
+
 const cronTabListRow: React.FC<RowProps<CronTabKind>> = ({ obj, activeColumnIDs }) => {
   return (
     <>
-      <TableData id="name" activeColumnIDs={activeColumnIDs} >
+      <TableData {...tableColumnInfo[0]} activeColumnIDs={activeColumnIDs}>
         <ResourceLink
           groupVersionKind={cronTabGroupVersionKind}
           name={obj.metadata.name}
           namespace={obj.metadata.namespace}
         />
       </TableData>
-      <TableData id="namespace" activeColumnIDs={activeColumnIDs} >
+      <TableData {...tableColumnInfo[1]} activeColumnIDs={activeColumnIDs}>
         <ResourceLink kind="Namespace" name={obj.metadata.namespace} />
       </TableData>
-      <TableData id="cronspec" activeColumnIDs={activeColumnIDs} >
+      <TableData {...tableColumnInfo[2]} activeColumnIDs={activeColumnIDs}>
         {obj.spec.cronSpec}
       </TableData>
-      <TableData id="image" activeColumnIDs={activeColumnIDs} >
+      <TableData {...tableColumnInfo[3]} activeColumnIDs={activeColumnIDs}>
         {obj.spec.image}
       </TableData>
-      <TableData id="replicas" activeColumnIDs={activeColumnIDs}>
+      <TableData {...tableColumnInfo[4]} activeColumnIDs={activeColumnIDs}>
         {obj.spec.replicas}
       </TableData>
-      <TableData id="created" activeColumnIDs={activeColumnIDs} >
+      <TableData {...tableColumnInfo[5]} activeColumnIDs={activeColumnIDs}>
         <Timestamp timestamp={obj.metadata.creationTimestamp} />
+      </TableData>
+      <TableData {...tableColumnInfo[6]} activeColumnIDs={activeColumnIDs}>
+        <CronTabKebab obj={obj} />
       </TableData>
     </>
   );
@@ -85,46 +163,51 @@ const cronTabListRow: React.FC<RowProps<CronTabKind>> = ({ obj, activeColumnIDs 
 
 const useCronTabColumns = () => {
   const { t } = useCronTabTranslation();
-  const columns: TableColumn<K8sResourceCommon>[] = React.useMemo(
+  const columns: TableColumn<CronTabKind>[] = React.useMemo(
     () => [
       {
         title: t('Name'),
-        id: 'name',
+        id: tableColumnInfo[0].id,
         transforms: [sortable],
         sort: 'metadata.name',
       },
       {
         title: t('Namespace'),
-        id: 'namespace',
+        id: tableColumnInfo[1].id,
         transforms: [sortable],
         sort: 'metadata.namespace',
       },
       {
         title: t('CronSpec'),
-        id: 'cronspec',
+        id: tableColumnInfo[2].id,
         transforms: [sortable],
         sort: 'spec.cronSpec',
       },
       {
         title: t('Image'),
-        id: 'image',
+        id: tableColumnInfo[3].id,
         transforms: [sortable],
         sort: 'spec.image',
       },
       {
         title: t('Replicas'),
-        id: 'replicas',
+        id: tableColumnInfo[4].id,
         transforms: [sortable],
         sort: 'spec.replicas',
       },
       {
         title: t('Created'),
-        id: 'created',
+        id: tableColumnInfo[5].id,
         transforms: [sortable],
         sort: 'metadata.creationTimestamp',
       },
+      {
+        title: '',
+        id: tableColumnInfo[6].id,
+        props: { className: tableColumnInfo[6].className }
+      },
     ],
-    [],
+    [t],
   );
 
   return columns;

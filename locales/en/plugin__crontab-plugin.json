@@ -1,9 +1,11 @@
 {
-  "Actions": "Actions",
+  "Create CronTab": "Create CronTab",
   "Created": "Created",
   "CronSpec": "CronSpec",
   "CronTab": "CronTab",
   "CronTabs": "CronTabs",
+  "Delete CronTab": "Delete CronTab",
+  "Edit CronTab": "Edit CronTab",
   "Image": "Image",
   "Name": "Name",
   "Namespace": "Namespace",
