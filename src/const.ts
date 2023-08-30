@@ -1,2 +1,2 @@
-export const CRONTAB_APIGROUP = 'stable.example.com';
-export const CRONTAB_APIVERSION = 'v1';
+export const CRONTAB_APIGROUP = "stable.example.com";
+export const CRONTAB_APIVERSION = "v1";
