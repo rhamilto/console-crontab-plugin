@@ -18,7 +18,6 @@ const KUBEADMIN_USERNAME = "kubeadmin";
 
 // any command added below, must be added to global Cypress interface above
 
-// This will add 'cy.login(...)'
 // ex: cy.login('my-idp', 'my-user', 'my-password')
 Cypress.Commands.add(
   "login",

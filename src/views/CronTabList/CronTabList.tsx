@@ -106,7 +106,7 @@ const CronTabKebab: React.FC<CronTabKebabProps> = ({ obj }) => {
   };
 
   const onFocus = () => {
-    const element = document.getElementById("toggle-kebab");
+    const element = document.getElementById("kebab-button");
     element.focus();
   };
 
@@ -118,6 +118,8 @@ const CronTabKebab: React.FC<CronTabKebabProps> = ({ obj }) => {
   const editURL = `/k8s/ns/${namespace}/${cronTabGroupVersionKind.group}~${
     cronTabGroupVersionKind.version
   }~${cronTabGroupVersionKind.kind}/${encodeURIComponent(name)}/yaml`;
+  const editLabel = "Edit CronTab";
+  const deleteLabel = t("Delete CronTab");
 
   const dropdownItems = [
     <DropdownItem
@@ -125,23 +127,31 @@ const CronTabKebab: React.FC<CronTabKebabProps> = ({ obj }) => {
       component="button"
       onClick={() => history.push(editURL)}
       isDisabled={!canEditCronTab[0]}
+      data-test-action={editLabel}
     >
-      {t("Edit CronTab")}
+      {t(editLabel)}
     </DropdownItem>,
     <DropdownItem
       key="delete"
       component="button"
       onClick={() => launchDeleteModal()}
       isDisabled={!canDeleteCronTab[0]}
+      data-test-action={deleteLabel}
     >
-      {t("Delete CronTab")}
+      {t(deleteLabel)}
     </DropdownItem>,
   ];
 
   return (
     <Dropdown
       onSelect={onSelect}
-      toggle={<KebabToggle id="toggle-kebab" onToggle={onToggle} />}
+      toggle={
+        <KebabToggle
+          id="kebab-button"
+          data-test="kebab-button"
+          onToggle={onToggle}
+        />
+      }
       isOpen={isOpen}
       isPlain
       dropdownItems={dropdownItems}
