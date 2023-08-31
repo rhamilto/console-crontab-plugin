@@ -1,7 +1,6 @@
 import React from "react";
 import { CronTabKind } from "@crontab-model/types";
 import {
-  getGroupVersionKindForModel,
   K8sResourceCommon,
   ListPageBody,
   ListPageCreate,
@@ -29,7 +28,8 @@ import {
   KebabToggle,
 } from "@patternfly/react-core";
 import { useHistory } from "react-router-dom";
-import { CronTabModel } from "src/models";
+import { cronTabGroupVersionKind } from "src/utils/utils";
+import { CRONTAB_KIND_PLURAL } from "src/const";
 
 type CronTabListProps = {
   namespace: string;
@@ -38,8 +38,6 @@ type CronTabListProps = {
 type CronTabKebabProps = {
   obj: CronTabKind;
 };
-
-const cronTabGroupVersionKind = getGroupVersionKindForModel(CronTabModel);
 
 const CronTabList: React.FC<CronTabListProps> = ({ namespace }) => {
   const [cronTabs, loaded, loadError] = useK8sWatchResource<
@@ -86,15 +84,15 @@ const CronTabKebab: React.FC<CronTabKebabProps> = ({ obj }) => {
   const launchDeleteModal = useDeleteModal(obj);
   const { name, namespace } = obj.metadata;
   const canEditCronTab = useAccessReview({
-    group: CronTabModel.apiGroup,
-    resource: CronTabModel.labelPlural,
+    group: cronTabGroupVersionKind.group,
+    resource: CRONTAB_KIND_PLURAL,
     verb: "update",
     name,
     namespace,
   });
   const canDeleteCronTab = useAccessReview({
-    group: CronTabModel.apiGroup,
-    resource: CronTabModel.labelPlural,
+    group: cronTabGroupVersionKind.group,
+    resource: CRONTAB_KIND_PLURAL,
     verb: "delete",
     name,
     namespace,
@@ -119,7 +117,7 @@ const CronTabKebab: React.FC<CronTabKebabProps> = ({ obj }) => {
     cronTabGroupVersionKind.version
   }~${cronTabGroupVersionKind.kind}/${encodeURIComponent(name)}/yaml`;
   const editLabel = "Edit CronTab";
-  const deleteLabel = t("Delete CronTab");
+  const deleteLabel = "Delete CronTab";
 
   const dropdownItems = [
     <DropdownItem

@@ -1,11 +1,16 @@
-const PLUGIN_TEMPLATE_NAME = "crontab-plugin";
+import {
+  CRONTAB_APIGROUP,
+  CRONTAB_APIVERSION,
+  CRONTAB_KIND,
+  PLUGIN_NAME,
+} from "../../src/const";
 
 export const getNamespacedListPageURL = (testName: string) =>
-  `/k8s/ns/${testName}/stable.example.com~v1~CronTab`;
+  `/k8s/ns/${testName}/${CRONTAB_APIGROUP}~${CRONTAB_APIVERSION}~${CRONTAB_KIND}`;
 
 export const installHelmChart = (path: string) => {
   cy.exec(
-    `cd ../../crontab-plugin && ${path} upgrade -i ${PLUGIN_TEMPLATE_NAME} charts/crontab-plugin -n ${PLUGIN_TEMPLATE_NAME} --create-namespace --set plugin.image=Cypress.env("PLUGIN_TEMPLATE_PULL_SPEC")`,
+    `cd ../../crontab-plugin && ${path} upgrade -i ${PLUGIN_NAME} charts/crontab-plugin -n ${PLUGIN_NAME} --create-namespace --set plugin.image=Cypress.env("CRONTAB_PLUGIN_PULL_SPEC")`,
     {
       failOnNonZeroExit: false,
     }
@@ -21,7 +26,7 @@ export const installHelmChart = (path: string) => {
 
 export const deleteHelmChart = (path: string) => {
   cy.exec(
-    `cd ../../crontab-plugin && ${path} uninstall ${PLUGIN_TEMPLATE_NAME} -n ${PLUGIN_TEMPLATE_NAME} && oc delete namespaces ${PLUGIN_TEMPLATE_NAME}`,
+    `cd ../../crontab-plugin && ${path} uninstall ${PLUGIN_NAME} -n ${PLUGIN_NAME} && oc delete namespaces ${PLUGIN_NAME}`,
     {
       failOnNonZeroExit: false,
     }

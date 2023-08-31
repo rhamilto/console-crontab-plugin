@@ -1,3 +1,4 @@
+import { PLUGIN_NAME } from "../../src/const";
 import { checkErrors, testName } from "../support";
 import { getNamespacedListPageURL, setup, teardown } from "../views/common";
 import { listPage } from "../views/list-page";
@@ -5,7 +6,7 @@ import { modal } from "../views/modal";
 
 const namespacedListPageURL = getNamespacedListPageURL(testName);
 
-describe("crontab-plugin template test", () => {
+describe(`${PLUGIN_NAME} list page test`, () => {
   before(() => {
     cy.login();
     cy.createProject(testName);
