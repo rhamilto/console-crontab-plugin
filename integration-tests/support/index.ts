@@ -1,0 +1,14 @@
+// Import commands.js using ES2015 syntax:
+import "./login";
+import "./project";
+import "./selectors";
+
+export const checkErrors = () =>
+  cy.window().then((win: any) => {
+    assert.isTrue(!win.windowError, win.windowError);
+  });
+
+export const testName = `test-${Math.random()
+  .toString(36)
+  .replace(/[^a-z]+/g, "")
+  .substr(0, 5)}`;

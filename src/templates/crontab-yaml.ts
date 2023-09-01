@@ -1,5 +1,7 @@
+import { CRONTAB_APIGROUP, CRONTAB_APIVERSION } from "src/const";
+
 export const defaultCronTabYamlTemplate = `
-apiVersion: "stable.example.com/v1"
+apiVersion: "${CRONTAB_APIGROUP}/${CRONTAB_APIVERSION}"
 kind: CronTab
 metadata:
   name: my-new-cron-object
