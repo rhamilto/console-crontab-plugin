@@ -30,8 +30,7 @@ export const deleteHelmChart = (path: string) => {
     {
       failOnNonZeroExit: false,
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ).then((result: any) => {
+  ).then((result) => {
     cy.log("Error uninstalling helm chart: ", result.stderr);
     cy.log("Successfully uninstalled helm chart: ", result.stdout);
   });

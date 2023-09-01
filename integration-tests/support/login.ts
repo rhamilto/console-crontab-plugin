@@ -1,52 +1,45 @@
-import { submitButton } from "../views/form";
-import { masthead } from "../views/masthead";
+export {};
 
 declare global {
   namespace Cypress {
     interface Chainable {
-      login(
-        providerName?: string,
-        username?: string,
-        password?: string
-      ): Chainable<Element>;
+      login(username?: string, password?: string): Chainable<Element>;
       logout(): Chainable<Element>;
     }
   }
 }
 
 const KUBEADMIN_USERNAME = "kubeadmin";
+const loginUsername = Cypress.env("BRIDGE_KUBEADMIN_PASSWORD")
+  ? "user-dropdown"
+  : "username";
 
-// any command added below, must be added to global Cypress interface above
+// This will add 'cy.login(...)'
+// ex: cy.login('my-user', 'my-password')
+Cypress.Commands.add("login", (username: string, password: string) => {
+  // Check if auth is disabled (for a local development environment).
+  cy.visit("/"); // visits baseUrl which is set in plugins/index.js
+  cy.window().then((win) => {
+    if (win.SERVER_FLAGS?.authDisabled) {
+      return;
+    }
 
-// ex: cy.login('my-idp', 'my-user', 'my-password')
-Cypress.Commands.add(
-  "login",
-  (provider: string, username: string, password: string) => {
-    // Check if auth is disabled (for a local development environment).
-    cy.visit("/dashboards"); // visits baseUrl which is set in plugins/index.js
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cy.window().then((win: any) => {
-      if (win.SERVER_FLAGS?.authDisabled) {
-        return;
-      }
+    // Make sure we clear the cookie in case a previous test failed to logout.
+    cy.clearCookie("openshift-session-token");
 
-      // Make sure we clear the cookie in case a previous test failed to logout.
-      cy.clearCookie("openshift-session-token");
+    cy.get("#inputUsername").type(username || KUBEADMIN_USERNAME);
+    cy.get("#inputPassword").type(
+      password || Cypress.env("BRIDGE_KUBEADMIN_PASSWORD")
+    );
+    cy.get("button[type=submit]").click();
 
-      cy.get("#inputUsername").type(username || KUBEADMIN_USERNAME);
-      cy.get("#inputPassword").type(
-        password || Cypress.env("BRIDGE_KUBEADMIN_PASSWORD")
-      );
-      cy.get(submitButton).click();
-      masthead.username.shouldBeVisible();
-    });
-  }
-);
+    cy.get(`[data-test="${loginUsername}"]`).should("be.visible");
+  });
+});
 
 Cypress.Commands.add("logout", () => {
   // Check if auth is disabled (for a local development environment).
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cy.window().then((win: any) => {
+  cy.window().then((win) => {
     if (win.SERVER_FLAGS?.authDisabled) {
       return;
     }
