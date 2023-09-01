@@ -4,6 +4,7 @@ import "./project";
 import "./selectors";
 
 export const checkErrors = () =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cy.window().then((win: any) => {
     assert.isTrue(!win.windowError, win.windowError);
   });
