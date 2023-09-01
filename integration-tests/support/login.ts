@@ -24,6 +24,7 @@ Cypress.Commands.add(
   (provider: string, username: string, password: string) => {
     // Check if auth is disabled (for a local development environment).
     cy.visit("http://localhost:9000/dashboards"); // visits baseUrl which is set in plugins/index.js
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cy.window().then((win: any) => {
       if (win.SERVER_FLAGS?.authDisabled) {
         return;
@@ -44,6 +45,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("logout", () => {
   // Check if auth is disabled (for a local development environment).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cy.window().then((win: any) => {
     if (win.SERVER_FLAGS?.authDisabled) {
       return;
