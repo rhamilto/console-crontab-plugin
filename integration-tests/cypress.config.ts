@@ -3,8 +3,8 @@ const { defineConfig } = require("cypress");
 module.exports = defineConfig({
   viewportWidth: 1920,
   viewportHeight: 1080,
-  screenshotsFolder: "./screenshots",
-  videosFolder: "./videos",
+  screenshotsFolder: "./artifacts/screenshots",
+  videosFolder: "./artifacts/videos",
   video: true,
   reporter: "../../node_modules/cypress-multi-reporters",
   reporterOptions: {
@@ -22,7 +22,6 @@ module.exports = defineConfig({
     },
     specPattern: "e2e/**/*.cy.{js,jsx,ts,tsx}",
     supportFile: "support/index.ts",
-    baseUrl: "http://localhost:9000/",
     testIsolation: false,
   },
 });
