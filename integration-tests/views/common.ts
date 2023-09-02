@@ -5,12 +5,14 @@ import {
   PLUGIN_NAME,
 } from "../../src/const";
 
+const CRONTAB_PLUGIN_PULL_SPEC = Cypress.env('CRONTAB_PLUGIN_PULL_SPEC');
+
 export const getNamespacedListPageURL = (testName: string) =>
   `/k8s/ns/${testName}/${CRONTAB_APIGROUP}~${CRONTAB_APIVERSION}~${CRONTAB_KIND}`;
 
 export const installHelmChart = (path: string) => {
   cy.exec(
-    `cd ../../crontab-plugin && ${path} upgrade -i ${PLUGIN_NAME} charts/crontab-plugin -n ${PLUGIN_NAME} --create-namespace --set plugin.image=Cypress.env("CRONTAB_PLUGIN_PULL_SPEC")`,
+    `cd ../../crontab-plugin && ${path} upgrade -i ${PLUGIN_NAME} charts/crontab-plugin -n ${PLUGIN_NAME} --create-namespace --set plugin.image=${CRONTAB_PLUGIN_PULL_SPEC}`,
     {
       failOnNonZeroExit: false,
     }
