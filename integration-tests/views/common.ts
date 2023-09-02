@@ -15,13 +15,12 @@ export const installHelmChart = (path: string) => {
       failOnNonZeroExit: false,
     }
   )
-    .byTestID("refresh-web-console", { timeout: 300000 })
-    .should("exist")
     .then((result) => {
-      cy.reload();
       cy.log("Error installing helm chart: ", result.stderr);
       cy.log("Successfully installed helm chart: ", result.stdout);
     });
+    cy.byTestID("refresh-web-console", { timeout: 300000 }).should("exist")
+    cy.reload();
 };
 
 export const deleteHelmChart = (path: string) => {
