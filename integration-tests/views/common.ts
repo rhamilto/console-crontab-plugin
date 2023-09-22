@@ -18,8 +18,8 @@ export const installHelmChart = (path: string) => {
     }
   )
     .then((result) => {
-      cy.log("Error installing helm chart: ", result.stderr);
-      cy.log("Successfully installed helm chart: ", result.stdout);
+      result.stderr && cy.log("Error installing helm chart: ", result.stderr);
+      result.stdout && cy.log("Successfully installed helm chart: ", result.stdout);
     });
     cy.byTestID("refresh-web-console", { timeout: 300000 }).should("exist")
     cy.reload();
@@ -32,8 +32,8 @@ export const deleteHelmChart = (path: string) => {
       failOnNonZeroExit: false,
     }
   ).then((result) => {
-    cy.log("Error uninstalling helm chart: ", result.stderr);
-    cy.log("Successfully uninstalled helm chart: ", result.stdout);
+    result.stderr && cy.log("Error uninstalling helm chart: ", result.stderr);
+    result.stdout && cy.log("Successfully uninstalled helm chart: ", result.stdout);
   });
 };
 
@@ -47,8 +47,8 @@ export const setup = () => {
     cy.exec("cd ../../crontab-plugin && ./install_helm.sh", {
       failOnNonZeroExit: false,
     }).then((result) => {
-      cy.log("Error installing helm binary: ", result.stderr);
-      cy.log(
+      result.stderr && cy.log("Error installing helm binary: ", result.stderr);
+      result.stdout && cy.log(
         'Successfully installed helm binary in "/tmp" directory: ',
         result.stdout
       );
