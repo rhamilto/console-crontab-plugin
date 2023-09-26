@@ -3,14 +3,19 @@ import { checkErrors, testName } from "../support";
 import { getNamespacedListPageURL, setup, teardown } from "../views/common";
 import { listPage } from "../views/list-page";
 import { modal } from "../views/modal";
-import { pairsList, getNameValueEditorRow, nameValueEquals, setName, setValue } from "../views/pairs-list";
+import {
+  getNameValueEditorRow,
+  nameValueEquals,
+  setName,
+  setValue,
+} from "../views/pairs-list";
 
 const namespacedListPageURL = getNamespacedListPageURL(testName);
 
 const annotations = [
   {
-    key: 'ALPHA_Num_KEY-1',
-    value: 'ALPHA_Num_VALUE-1',
+    key: "ALPHA_Num_KEY-1",
+    value: "ALPHA_Num_VALUE-1",
   },
 ];
 
@@ -62,8 +67,10 @@ describe(`${PLUGIN_NAME} list page test`, () => {
     modal.submit();
     modal.shouldBeClosed();
     // 3 seconds wait for the new CronTab annotation to be updated
+    /* eslint-disable cypress/no-unnecessary-waiting */
     cy.wait(3000);
-    cy.log('Verify annotations');
+    /* eslint-enable cypress/no-unnecessary-waiting */
+    cy.log("Verify annotations");
     listPage.rows.clickKebabAction("my-new-cron-object", "Edit annotations");
     modal.shouldBeOpened();
     getNameValueEditorRow(0).then((row) => {
