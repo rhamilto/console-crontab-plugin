@@ -1,18 +1,18 @@
 apiVersion: console.openshift.io/v1
 kind: ConsolePlugin
 metadata:
-  name: {{ template "crontab-plugin.name" . }}
+  name: {{ template "console-crontab-plugin.name" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "crontab-plugin.labels" . | nindent 4 }}
+    {{- include "console-crontab-plugin.labels" . | nindent 4 }}
 spec:
-  displayName: {{ default (printf "%s Plugin" (include "crontab-plugin.name" .)) .Values.plugin.description }}
+  displayName: {{ default (printf "%s Plugin" (include "console-crontab-plugin.name" .)) .Values.plugin.description }}
   i18n:
     loadType: Preload
   backend:
     type: Service
     service:
-      name: {{ template "crontab-plugin.name" . }}
+      name: {{ template "console-crontab-plugin.name" . }}
       namespace: {{ .Release.Namespace }}
       port: {{ .Values.plugin.port }}
       basePath: {{ .Values.plugin.basePath }}

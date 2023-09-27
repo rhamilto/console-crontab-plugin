@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "crontab-plugin.name" . }}
+  name: {{ template "console-crontab-plugin.name" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "crontab-plugin.labels" . | nindent 4 }}
+    {{- include "console-crontab-plugin.labels" . | nindent 4 }}
     app.openshift.io/runtime-namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.plugin.replicas }}
   selector:
     matchLabels:
-      {{- include "crontab-plugin.selectorLabels" . | nindent 6 }}
+      {{- include "console-crontab-plugin.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-            {{- include "crontab-plugin.labels" . | nindent 8 }}
+            {{- include "console-crontab-plugin.labels" . | nindent 8 }}
     spec:
       containers:
-        - name: {{ template "crontab-plugin.name" . }}
+        - name: {{ template "console-crontab-plugin.name" . }}
           image: {{ required "Plugin image must be specified!" .Values.plugin.image }}
           ports:
             - containerPort: {{ .Values.plugin.port }}
@@ -29,7 +29,7 @@ spec:
           resources:
             {{- toYaml .Values.plugin.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ template "crontab-plugin.certificateSecret" . }}
+            - name: {{ template "console-crontab-plugin.certificateSecret" . }}
               readOnly: true
               mountPath: /var/cert
             - name: nginx-conf
@@ -37,13 +37,13 @@ spec:
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
       volumes:
-        - name: {{ template "crontab-plugin.certificateSecret" . }}
+        - name: {{ template "console-crontab-plugin.certificateSecret" . }}
           secret:
-            secretName: {{ template "crontab-plugin.certificateSecret" . }}
+            secretName: {{ template "console-crontab-plugin.certificateSecret" . }}
             defaultMode: 420
         - name: nginx-conf
           configMap:
-            name: {{ template "crontab-plugin.name" . }}
+            name: {{ template "console-crontab-plugin.name" . }}
             defaultMode: 420
       restartPolicy: Always
       dnsPolicy: ClusterFirst

@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "crontab-plugin.name" . }}
+  name: {{ template "console-crontab-plugin.name" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "crontab-plugin.labels" . | nindent 4 }}
+    {{- include "console-crontab-plugin.labels" . | nindent 4 }}
 data:
   nginx.conf: |
     error_log /dev/stdout info;

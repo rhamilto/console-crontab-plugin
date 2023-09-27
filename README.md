@@ -18,13 +18,13 @@ push it to an image registry.
    to run in-cluster.
 
    ```sh
-   docker build -f Dockerfile -t $NAME/crontab-plugin:latest . --no-cache
+   docker build -f Dockerfile -t $NAME/console-crontab-plugin:latest . --no-cache
    ```
 
 2. Push the image:
 
    ```sh
-   docker push $NAME/crontab-plugin:latest
+   docker push $NAME/console-crontab-plugin:latest
    ```
 
 
@@ -33,12 +33,12 @@ A [Helm](https://helm.sh) chart is available to deploy the plugin to an OpenShif
 
 To deploy the plugin on a cluster using a Helm chart:
 ```shell
-helm upgrade -i crontab-plugin charts/crontab-plugin -n crontab-plugin-ns --create-namespace --set plugin.image=docker.io/$NAME/crontab-plugin:latest
+helm upgrade -i console-crontab-plugin charts/console-crontab-plugin -n console-crontab-plugin-ns --create-namespace --set plugin.image=docker.io/$NAME/console-crontab-plugin:latest
 ```
 
-`-i crontab-plugin`: specifies installation of a release named `crontab-plugin`
+`-i console-crontab-plugin`: specifies installation of a release named `console-crontab-plugin`
 
-`-n crontab-plugin-ns --create-namespace`: creates a new namespace for the helm chart
+`-n console-crontab-plugin-ns --create-namespace`: creates a new namespace for the helm chart
 
 `plugin.image`: Specifies the location of the image containing the plugin, to be deployed
 
