@@ -3,12 +3,12 @@ kind: Service
 metadata:
   {{- if not .Values.certificateSecretName }}
   annotations:
-    service.alpha.openshift.io/serving-cert-secret-name: {{ template "crontab-plugin.certificateSecret" . }}
+    service.alpha.openshift.io/serving-cert-secret-name: {{ template "console-crontab-plugin.certificateSecret" . }}
   {{- end }}
-  name: {{ template "crontab-plugin.name" . }}
+  name: {{ template "console-crontab-plugin.name" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "crontab-plugin.labels" . | nindent 4 }}
+    {{- include "console-crontab-plugin.labels" . | nindent 4 }}
 spec:
   ports:
     - name: {{ .Values.plugin.port }}-tcp
@@ -16,6 +16,6 @@ spec:
       port: {{ .Values.plugin.port }}
       targetPort: {{ .Values.plugin.port }}
   selector:
-    {{- include "crontab-plugin.selectorLabels" . | nindent 4 }}
+    {{- include "console-crontab-plugin.selectorLabels" . | nindent 4 }}
   type: ClusterIP
   sessionAffinity: None

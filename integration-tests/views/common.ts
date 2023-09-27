@@ -12,7 +12,7 @@ export const getNamespacedListPageURL = (testName: string) =>
 
 export const installHelmChart = (path: string) => {
   cy.exec(
-    `cd ../../crontab-plugin && ${path} upgrade -i ${PLUGIN_NAME} charts/crontab-plugin -n ${PLUGIN_NAME} --create-namespace --set plugin.image=${CRONTAB_PLUGIN_PULL_SPEC}`,
+    `cd ../../console-crontab-plugin && ${path} upgrade -i ${PLUGIN_NAME} charts/console-crontab-plugin -n ${PLUGIN_NAME} --create-namespace --set plugin.image=${CRONTAB_PLUGIN_PULL_SPEC}`,
     {
       failOnNonZeroExit: false,
     }
@@ -27,7 +27,7 @@ export const installHelmChart = (path: string) => {
 
 export const deleteHelmChart = (path: string) => {
   cy.exec(
-    `cd ../../crontab-plugin && ${path} uninstall ${PLUGIN_NAME} -n ${PLUGIN_NAME} && oc delete namespaces ${PLUGIN_NAME}`,
+    `cd ../../console-crontab-plugin && ${path} uninstall ${PLUGIN_NAME} -n ${PLUGIN_NAME} && oc delete namespaces ${PLUGIN_NAME}`,
     {
       failOnNonZeroExit: false,
     }
@@ -45,7 +45,7 @@ export const setup = () => {
   if (!isLocalDevEnvironment) {
     console.log("this is not a local env, installing helm and helm chart");
 
-    cy.exec("cd ../../crontab-plugin && ./install_helm.sh", {
+    cy.exec("cd ../../console-crontab-plugin && ./install_helm.sh", {
       failOnNonZeroExit: false,
     }).then((result) => {
       result.stderr && cy.log("Error installing helm binary: ", result.stderr);

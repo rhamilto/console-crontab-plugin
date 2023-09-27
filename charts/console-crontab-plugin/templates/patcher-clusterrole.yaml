@@ -2,10 +2,10 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ template "crontab-plugin.patcherName" . }}
+  name: {{ template "console-crontab-plugin.patcherName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "crontab-plugin.labels" . | nindent 4 }}
+    {{- include "console-crontab-plugin.labels" . | nindent 4 }}
 rules:
   - apiGroups: ["operator.openshift.io"]
     resources: ["consoles"]

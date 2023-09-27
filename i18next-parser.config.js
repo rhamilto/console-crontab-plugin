@@ -9,7 +9,7 @@ module.exports = {
   locales: ['en'],
   namespaceSeparator: '~',
   reactNamespace: false,
-  defaultNamespace: 'plugin__crontab-plugin',
+  defaultNamespace: 'plugin__console-crontab-plugin',
   useKeysAsDefaultValue: true,
 
   // see below for more details

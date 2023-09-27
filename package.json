@@ -1,8 +1,8 @@
 {
-  "name": "crontab-plugin",
+  "name": "console-crontab-plugin",
   "version": "0.0.1",
   "private": true,
-  "repository": "git@github.com:openshift/crontab-plugin.git",
+  "repository": "git@github.com:openshift/console-crontab-plugin.git",
   "license": "Apache-2.0",
   "scripts": {
     "check-types": "tsc",
@@ -70,7 +70,7 @@
     "webpack-dev-server": "^4.5.0"
   },
   "consolePlugin": {
-    "name": "crontab-plugin",
+    "name": "console-crontab-plugin",
     "version": "0.0.1",
     "displayName": "Sample CronTab Plugin",
     "description": "Sample plugin for the OpenShift Console. This plugin adds basic functionality that allows users to manage CronTab custom resources.",

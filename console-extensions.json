@@ -14,7 +14,7 @@
     "type": "console.navigation/resource-ns",
     "properties": {
       "id": "crontab",
-      "name": "%plugin__crontab-plugin~CronTabs%",
+      "name": "%plugin__console-crontab-plugin~CronTabs%",
       "perspective": "admin",
       "section": "workloads",
       "insertAfter": "WorkloadsSeparator",
