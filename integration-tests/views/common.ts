@@ -5,7 +5,7 @@ import {
   PLUGIN_NAME,
 } from "../../src/const";
 
-const CRONTAB_PLUGIN_PULL_SPEC = Cypress.env('CRONTAB_PLUGIN_PULL_SPEC');
+const CRONTAB_PLUGIN_PULL_SPEC = Cypress.env("CRONTAB_PLUGIN_PULL_SPEC");
 
 export const getNamespacedListPageURL = (testName: string) =>
   `/k8s/ns/${testName}/${CRONTAB_APIGROUP}~${CRONTAB_APIVERSION}~${CRONTAB_KIND}`;
@@ -16,13 +16,13 @@ export const installHelmChart = (path: string) => {
     {
       failOnNonZeroExit: false,
     }
-  )
-    .then((result) => {
-      result.stderr && cy.log("Error installing helm chart: ", result.stderr);
-      result.stdout && cy.log("Successfully installed helm chart: ", result.stdout);
-    });
-    cy.byTestID("refresh-web-console", { timeout: 300000 }).should("exist")
-    cy.reload();
+  ).then((result) => {
+    result.stderr && cy.log("Error installing helm chart: ", result.stderr);
+    result.stdout &&
+      cy.log("Successfully installed helm chart: ", result.stdout);
+  });
+  cy.byTestID("refresh-web-console", { timeout: 300000 }).should("exist");
+  cy.reload();
 };
 
 export const deleteHelmChart = (path: string) => {
@@ -33,7 +33,8 @@ export const deleteHelmChart = (path: string) => {
     }
   ).then((result) => {
     result.stderr && cy.log("Error uninstalling helm chart: ", result.stderr);
-    result.stdout && cy.log("Successfully uninstalled helm chart: ", result.stdout);
+    result.stdout &&
+      cy.log("Successfully uninstalled helm chart: ", result.stdout);
   });
 };
 
@@ -48,10 +49,11 @@ export const setup = () => {
       failOnNonZeroExit: false,
     }).then((result) => {
       result.stderr && cy.log("Error installing helm binary: ", result.stderr);
-      result.stdout && cy.log(
-        'Successfully installed helm binary in "/tmp" directory: ',
-        result.stdout
-      );
+      result.stdout &&
+        cy.log(
+          'Successfully installed helm binary in "/tmp" directory: ',
+          result.stdout
+        );
 
       installHelmChart("/tmp/helm");
     });
