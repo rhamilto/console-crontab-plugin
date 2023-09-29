@@ -9,6 +9,7 @@ import {
   Timestamp,
   useAccessReview,
   useK8sWatchResource,
+  useLabelsModal,
   useListPageFilter,
   VirtualizedTable,
 } from "@openshift-console/dynamic-plugin-sdk";
@@ -31,6 +32,13 @@ import {
 import { useHistory } from "react-router-dom";
 import { cronTabGroupVersionKind } from "src/utils/utils";
 import { CRONTAB_KIND_PLURAL } from "src/const";
+import {
+  KEBAB_ACTION_EDIT_ID,
+  KEBAB_ACTION_EDIT_ANNOTATIONS_ID,
+  KEBAB_ACTION_EDIT_LABELS_ID,
+  KEBAB_ACTION_DELETE_ID,
+  KEBAB_BUTTON_ID,
+} from "./const";
 
 type CronTabListProps = {
   namespace: string;
@@ -84,6 +92,7 @@ const CronTabKebab: React.FC<CronTabKebabProps> = ({ obj }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const launchDeleteModal = useDeleteModal(obj);
   const launchAnnotationsModal = useAnnotationsModal(obj);
+  const launchLabelsModal = useLabelsModal(obj);
   const { name, namespace } = obj.metadata;
   const canEditCronTab = useAccessReview({
     group: cronTabGroupVersionKind.group,
@@ -118,37 +127,43 @@ const CronTabKebab: React.FC<CronTabKebabProps> = ({ obj }) => {
   const editURL = `/k8s/ns/${namespace}/${cronTabGroupVersionKind.group}~${
     cronTabGroupVersionKind.version
   }~${cronTabGroupVersionKind.kind}/${encodeURIComponent(name)}/yaml`;
-  const editLabel = t("Edit CronTab");
-  const deleteLabel = t("Delete CronTab");
-  const editAnnotationsLabel = t("Edit annotations");
 
   const dropdownItems = [
     <DropdownItem
-      key="edit"
+      key={KEBAB_ACTION_EDIT_LABELS_ID}
+      component="button"
+      onClick={launchLabelsModal}
+      isDisabled={!canEditCronTab}
+      data-test-action={KEBAB_ACTION_EDIT_LABELS_ID}
+    >
+      {t("Edit labels")}
+    </DropdownItem>,
+    <DropdownItem
+      key={KEBAB_ACTION_EDIT_ANNOTATIONS_ID}
       component="button"
       onClick={() => launchAnnotationsModal()}
       isDisabled={!canEditCronTab[0]}
-      data-test-action={"Edit annotations"}
+      data-test-action={KEBAB_ACTION_EDIT_ANNOTATIONS_ID}
     >
-      {editAnnotationsLabel}
+      {t("Edit annotations")}
     </DropdownItem>,
     <DropdownItem
-      key="edit"
+      key={KEBAB_ACTION_EDIT_ID}
       component="button"
       onClick={() => history.push(editURL)}
       isDisabled={!canEditCronTab[0]}
-      data-test-action={"Edit CronTab"}
+      data-test-action={KEBAB_ACTION_EDIT_ID}
     >
-      {editLabel}
+      {t("Edit CronTab")}
     </DropdownItem>,
     <DropdownItem
-      key="delete"
+      key={KEBAB_ACTION_DELETE_ID}
       component="button"
-      onClick={() => launchDeleteModal()}
+      onClick={launchDeleteModal}
       isDisabled={!canDeleteCronTab[0]}
-      data-test-action={"Delete CronTab"}
+      data-test-action={KEBAB_ACTION_DELETE_ID}
     >
-      {deleteLabel}
+      {t("Delete CronTab")}
     </DropdownItem>,
   ];
 
@@ -157,8 +172,8 @@ const CronTabKebab: React.FC<CronTabKebabProps> = ({ obj }) => {
       onSelect={onSelect}
       toggle={
         <KebabToggle
-          id="kebab-button"
-          data-test="kebab-button"
+          id={KEBAB_BUTTON_ID}
+          data-test={KEBAB_BUTTON_ID}
           onToggle={onToggle}
         />
       }
