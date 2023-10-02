@@ -71,3 +71,9 @@ export const teardown = () => {
     console.log("this is a local env, not deleting helm chart");
   }
 };
+
+export const common = {
+  inlineDangerAlert: () => cy.get(".pf-c-alert.pf-m-inline.pf-m-danger"),
+  resourceTitleShouldHaveText: (title: string) =>
+    cy.byLegacyTestID("resource-title").should("have.text", title),
+};

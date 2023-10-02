@@ -1,6 +1,4 @@
 export const listPage = {
-  titleShouldHaveText: (title: string) =>
-    cy.byLegacyTestID("resource-title").contains(title).should("exist"),
   clickCreateYAMLbutton: () => {
     cy.byTestID("item-create").click();
   },

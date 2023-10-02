@@ -5,19 +5,21 @@ import {
   KEBAB_ACTION_EDIT_LABELS_ID,
 } from "../../src/views/CronTabList/const";
 import { checkErrors, testName } from "../support";
-import { getNamespacedListPageURL, setup, teardown } from "../views/common";
+import {
+  common,
+  getNamespacedListPageURL,
+  setup,
+  teardown,
+} from "../views/common";
 import { listPage } from "../views/list-page";
 import { modal } from "../views/modal";
 import { labelsModal } from "../views/labels-modal";
-import {
-  getNameValueEditorRow,
-  nameValueEquals,
-  setName,
-  setValue,
-} from "../views/pairs-list";
+import { annotationModal } from "../views/annotations-modal";
+import { detailsPage } from "../views/details-page";
 
-const namespacedListPageURL = getNamespacedListPageURL(testName);
-
+const listPageURL = getNamespacedListPageURL(testName);
+const cronTabName = "my-new-cron-object";
+const detailsPageURL = `${listPageURL}/${cronTabName}`;
 const testLabel = "key1=value1";
 const annotations = [
   {
@@ -44,86 +46,84 @@ describe(`${PLUGIN_NAME} list page test`, () => {
   });
 
   it("renders the CronTabs list page", () => {
-    cy.visit(namespacedListPageURL);
-    listPage.titleShouldHaveText("CronTabs");
+    cy.visit(listPageURL);
+    common.resourceTitleShouldHaveText("CronTabs");
     cy.byTestID("item-create").should("exist");
     listPage.rows.countShouldBe(0);
   });
 
-  // TODO (jon) - this test should be split into multiple tests
+  // TODO (jon) - this test should be split into 4 independent cases.
   // - create, edit annotations, edit labels, delete
   it("Create and interact with a CronTab from the list page", () => {
     cy.log("Create CronTab");
-    cy.visit(namespacedListPageURL);
-    listPage.titleShouldHaveText("CronTabs");
+    cy.visit(listPageURL);
+    common.resourceTitleShouldHaveText("CronTabs");
     listPage.clickCreateYAMLbutton();
     cy.byLegacyTestID("resource-title").should("contain", "Create CronTab");
     cy.byTestID("save-changes").click();
-    cy.get(".pf-c-alert.pf-m-inline.pf-m-danger").should("not.exist");
-    cy.byLegacyTestID("resource-title").should("contain", "my-new-cron-object");
+    common.inlineDangerAlert().should("not.exist");
+    common.resourceTitleShouldHaveText(cronTabName);
 
     cy.log("Edit annotations");
-    cy.visit(namespacedListPageURL);
-    listPage.rows.shouldBeLoaded();
-    listPage.rows.shouldExist("my-new-cron-object");
+    cy.visit(detailsPageURL);
+    detailsPage.detailsItemValueShouldContain("Annotations", "0 annotations");
+    cy.visit(listPageURL);
     listPage.rows.clickKebabAction(
-      "my-new-cron-object",
+      cronTabName,
       KEBAB_ACTION_EDIT_ANNOTATIONS_ID
     );
     modal.shouldBeOpened();
     modal.modalTitleShouldContain("Edit annotations");
-    getNameValueEditorRow(0).then((row) => {
-      setName(row, annotations[0].key);
-      setValue(row, annotations[0].value);
+    annotationModal.countShouldBe(1);
+    annotations.forEach(({ key, value }, index) => {
+      annotationModal.annotationEquals(index, "", "");
+      annotationModal.inputAnnotation(index, key, value);
+      annotationModal.annotationEquals(index, key, value);
     });
+    annotationModal.countShouldBe(annotations.length);
     modal.submit();
     modal.shouldBeClosed();
-    // 3 seconds wait for the new CronTab annotation to be updated
-    /* eslint-disable cypress/no-unnecessary-waiting */
-    cy.wait(3000);
-    /* eslint-enable cypress/no-unnecessary-waiting */
-    cy.log("Verify annotations");
-    listPage.rows.clickKebabAction(
-      "my-new-cron-object",
-      KEBAB_ACTION_EDIT_ANNOTATIONS_ID
-    );
+    cy.visit(detailsPageURL);
+    detailsPage.detailsItemValueShouldContain("Annotations", "1 annotation");
+    detailsPage.clickEditAnnotations();
     modal.shouldBeOpened();
-    getNameValueEditorRow(0).then((row) => {
-      nameValueEquals(row, annotations[0].key, annotations[0].value);
+    modal.modalTitleShouldContain("Edit annotations");
+    annotationModal.countShouldBe(annotations.length);
+    annotations.forEach(({ key, value }, index) => {
+      annotationModal.annotationEquals(index, key, value);
     });
-    modal.cancel();
-    modal.shouldBeClosed();
 
     cy.log("Edit labels");
-    cy.visit(namespacedListPageURL);
-    listPage.rows.shouldBeLoaded();
-    listPage.rows.shouldExist("my-new-cron-object");
-    listPage.rows.clickKebabAction(
-      "my-new-cron-object",
-      KEBAB_ACTION_EDIT_LABELS_ID
-    );
+    cy.visit(detailsPageURL);
+    detailsPage.detailsItemValueShouldContain("Labels", "No labels");
+    cy.visit(listPageURL);
+    listPage.rows.clickKebabAction(cronTabName, KEBAB_ACTION_EDIT_LABELS_ID);
     modal.shouldBeOpened();
-    cy.byLegacyTestID("modal-title").should("have.text", "Edit labels");
+    modal.modalTitleShouldContain("Edit labels");
     modal.submitShouldBeEnabled();
+    labelsModal.countShouldBe(0);
     labelsModal.inputLabel(testLabel);
-    labelsModal.labelHasValue(0, testLabel);
+    labelsModal.countShouldBe(1);
+    labelsModal.labelEquals(0, testLabel);
     modal.submit();
     modal.shouldBeClosed();
-    listPage.rows.clickRowByName("my-new-cron-object");
-    cy.get("body").should("contain.text", testLabel);
+    cy.visit(detailsPageURL);
+    detailsPage.detailsItemValueShouldContain("Labels", testLabel);
+    detailsPage.clickEditLabels();
+    modal.shouldBeOpened();
+    modal.modalTitleShouldContain("Edit labels");
+    labelsModal.countShouldBe(1);
+    labelsModal.labelEquals(0, testLabel);
 
     cy.log("Delete CronTab");
-    cy.visit(namespacedListPageURL);
+    cy.visit(listPageURL);
     listPage.rows.shouldBeLoaded();
-    listPage.rows.shouldExist("my-new-cron-object");
-    listPage.rows.clickKebabAction(
-      "my-new-cron-object",
-      KEBAB_ACTION_DELETE_ID
-    );
+    listPage.rows.shouldExist(cronTabName);
+    listPage.rows.clickKebabAction(cronTabName, KEBAB_ACTION_DELETE_ID);
     modal.shouldBeOpened();
     modal.submitShouldBeEnabled();
     modal.submit();
     modal.shouldBeClosed();
-    listPage.rows.shouldNotExist("my-new-cron-object");
+    listPage.rows.shouldNotExist(cronTabName);
   });
 });
