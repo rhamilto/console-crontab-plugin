@@ -1,17 +1,26 @@
 import { PLUGIN_NAME } from "../../src/const";
+import {
+  KEBAB_ACTION_DELETE_ID,
+  KEBAB_ACTION_EDIT_ANNOTATIONS_ID,
+  KEBAB_ACTION_EDIT_LABELS_ID,
+} from "../../src/views/CronTabList/const";
 import { checkErrors, testName } from "../support";
-import { getNamespacedListPageURL, setup, teardown } from "../views/common";
+import {
+  common,
+  getNamespacedListPageURL,
+  setup,
+  teardown,
+} from "../views/common";
 import { listPage } from "../views/list-page";
 import { modal } from "../views/modal";
-import {
-  getNameValueEditorRow,
-  nameValueEquals,
-  setName,
-  setValue,
-} from "../views/pairs-list";
+import { labelsModal } from "../views/labels-modal";
+import { annotationModal } from "../views/annotations-modal";
+import { detailsPage } from "../views/details-page";
 
-const namespacedListPageURL = getNamespacedListPageURL(testName);
-
+const listPageURL = getNamespacedListPageURL(testName);
+const cronTabName = "my-new-cron-object";
+const detailsPageURL = `${listPageURL}/${cronTabName}`;
+const testLabel = "key1=value1";
 const annotations = [
   {
     key: "ALPHA_Num_KEY-1",
@@ -36,58 +45,85 @@ describe(`${PLUGIN_NAME} list page test`, () => {
     cy.logout();
   });
 
-  it("Verify the CronTabs list page is loaded", () => {
-    cy.visit(namespacedListPageURL);
-    listPage.titleShouldHaveText("CronTabs");
+  it("renders the CronTabs list page", () => {
+    cy.visit(listPageURL);
+    common.resourceTitleShouldHaveText("CronTabs");
     cy.byTestID("item-create").should("exist");
     listPage.rows.countShouldBe(0);
   });
 
-  it("Create, update annotations and delete a new CronTab from the list page", () => {
-    cy.log("Creating a new CronTab from the list page");
-    cy.visit(namespacedListPageURL);
-    listPage.titleShouldHaveText("CronTabs");
+  // TODO (jon) - this test should be split into 4 independent cases.
+  // - create, edit annotations, edit labels, delete
+  it("Create and interact with a CronTab from the list page", () => {
+    cy.log("Create CronTab");
+    cy.visit(listPageURL);
+    common.resourceTitleShouldHaveText("CronTabs");
     listPage.clickCreateYAMLbutton();
     cy.byLegacyTestID("resource-title").should("contain", "Create CronTab");
     cy.byTestID("save-changes").click();
-    cy.get(".pf-c-alert.pf-m-inline.pf-m-danger").should("not.exist");
-    cy.byLegacyTestID("resource-title").should("contain", "my-new-cron-object");
+    common.inlineDangerAlert().should("not.exist");
+    common.resourceTitleShouldHaveText(cronTabName);
 
-    cy.log("Edit annotations on the new CronTab from the list page");
-    cy.visit(namespacedListPageURL);
-    listPage.rows.shouldBeLoaded();
-    listPage.rows.shouldExist("my-new-cron-object");
-    listPage.rows.clickKebabAction("my-new-cron-object", "Edit annotations");
+    cy.log("Edit annotations");
+    cy.visit(detailsPageURL);
+    detailsPage.detailsItemValueShouldContain("Annotations", "0 annotations");
+    cy.visit(listPageURL);
+    listPage.rows.clickKebabAction(
+      cronTabName,
+      KEBAB_ACTION_EDIT_ANNOTATIONS_ID
+    );
     modal.shouldBeOpened();
     modal.modalTitleShouldContain("Edit annotations");
-    getNameValueEditorRow(0).then((row) => {
-      setName(row, annotations[0].key);
-      setValue(row, annotations[0].value);
+    annotationModal.countShouldBe(1);
+    annotations.forEach(({ key, value }, index) => {
+      annotationModal.annotationEquals(index, "", "");
+      annotationModal.inputAnnotation(index, key, value);
+      annotationModal.annotationEquals(index, key, value);
     });
+    annotationModal.countShouldBe(annotations.length);
     modal.submit();
     modal.shouldBeClosed();
-    // 3 seconds wait for the new CronTab annotation to be updated
-    /* eslint-disable cypress/no-unnecessary-waiting */
-    cy.wait(3000);
-    /* eslint-enable cypress/no-unnecessary-waiting */
-    cy.log("Verify annotations");
-    listPage.rows.clickKebabAction("my-new-cron-object", "Edit annotations");
+    cy.visit(detailsPageURL);
+    detailsPage.detailsItemValueShouldContain("Annotations", "1 annotation");
+    detailsPage.clickEditAnnotations();
     modal.shouldBeOpened();
-    getNameValueEditorRow(0).then((row) => {
-      nameValueEquals(row, annotations[0].key, annotations[0].value);
+    modal.modalTitleShouldContain("Edit annotations");
+    annotationModal.countShouldBe(annotations.length);
+    annotations.forEach(({ key, value }, index) => {
+      annotationModal.annotationEquals(index, key, value);
     });
-    modal.cancel();
-    modal.shouldBeClosed();
 
-    cy.log("Deleting the new CronTab from the list page");
-    cy.visit(namespacedListPageURL);
+    cy.log("Edit labels");
+    cy.visit(detailsPageURL);
+    detailsPage.detailsItemValueShouldContain("Labels", "No labels");
+    cy.visit(listPageURL);
+    listPage.rows.clickKebabAction(cronTabName, KEBAB_ACTION_EDIT_LABELS_ID);
+    modal.shouldBeOpened();
+    modal.modalTitleShouldContain("Edit labels");
+    modal.submitShouldBeEnabled();
+    labelsModal.countShouldBe(0);
+    labelsModal.inputLabel(testLabel);
+    labelsModal.countShouldBe(1);
+    labelsModal.labelEquals(0, testLabel);
+    modal.submit();
+    modal.shouldBeClosed();
+    cy.visit(detailsPageURL);
+    detailsPage.detailsItemValueShouldContain("Labels", testLabel);
+    detailsPage.clickEditLabels();
+    modal.shouldBeOpened();
+    modal.modalTitleShouldContain("Edit labels");
+    labelsModal.countShouldBe(1);
+    labelsModal.labelEquals(0, testLabel);
+
+    cy.log("Delete CronTab");
+    cy.visit(listPageURL);
     listPage.rows.shouldBeLoaded();
-    listPage.rows.shouldExist("my-new-cron-object");
-    listPage.rows.clickKebabAction("my-new-cron-object", "Delete CronTab");
+    listPage.rows.shouldExist(cronTabName);
+    listPage.rows.clickKebabAction(cronTabName, KEBAB_ACTION_DELETE_ID);
     modal.shouldBeOpened();
     modal.submitShouldBeEnabled();
     modal.submit();
     modal.shouldBeClosed();
-    listPage.rows.shouldNotExist("my-new-cron-object");
+    listPage.rows.shouldNotExist(cronTabName);
   });
 });
