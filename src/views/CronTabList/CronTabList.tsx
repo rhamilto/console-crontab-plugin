@@ -42,13 +42,17 @@ import {
 
 type CronTabListProps = {
   namespace: string;
+  showTitle?: boolean;
 };
 
 type CronTabKebabProps = {
   obj: CronTabKind;
 };
 
-const CronTabList: React.FC<CronTabListProps> = ({ namespace }) => {
+const CronTabList: React.FC<CronTabListProps> = ({
+  namespace,
+  showTitle = true,
+}) => {
   const [cronTabs, loaded, loadError] = useK8sWatchResource<
     K8sResourceCommon[]
   >({
@@ -63,7 +67,7 @@ const CronTabList: React.FC<CronTabListProps> = ({ namespace }) => {
 
   return (
     <>
-      <ListPageHeader title={t("CronTabs")}>
+      <ListPageHeader title={showTitle ? t("CronTabs") : undefined}>
         <ListPageCreate groupVersionKind={cronTabGroupVersionKind}>
           {t("Create CronTab")}
         </ListPageCreate>
@@ -81,6 +85,7 @@ const CronTabList: React.FC<CronTabListProps> = ({ namespace }) => {
           loadError={loadError}
           columns={columns}
           Row={cronTabListRow}
+          label={t("CronTabs")}
         />
       </ListPageBody>
     </>
