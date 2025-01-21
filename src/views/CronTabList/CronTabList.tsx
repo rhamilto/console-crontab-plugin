@@ -24,11 +24,13 @@ import {
 } from "@openshift-console/dynamic-plugin-sdk";
 import { sortable } from "@patternfly/react-table";
 import {
-  Dropdown as DropdownDeprecated,
-  DropdownPosition as DropdownPositionDeprecated,
-  KebabToggle as KebabToggleDeprecated,
-  DropdownItem as DropdownItemDeprecated,
-} from "@patternfly/react-core/deprecated";
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  MenuToggle,
+  MenuToggleElement,
+} from "@patternfly/react-core";
+import { EllipsisVIcon } from "@patternfly/react-icons";
 import { useHistory } from "react-router-dom";
 import { cronTabGroupVersionKind } from "src/utils/utils";
 import { CRONTAB_KIND_PLURAL } from "src/const";
@@ -134,59 +136,61 @@ const CronTabKebab: React.FC<CronTabKebabProps> = ({ obj }) => {
   }~${cronTabGroupVersionKind.kind}/${encodeURIComponent(name)}/yaml`;
 
   const dropdownItems = [
-    <DropdownItemDeprecated
+    <DropdownItem
       key={KEBAB_ACTION_EDIT_LABELS_ID}
-      component="button"
       onClick={launchLabelsModal}
       isDisabled={!canEditCronTab}
       data-test-action={KEBAB_ACTION_EDIT_LABELS_ID}
     >
       {t("Edit labels")}
-    </DropdownItemDeprecated>,
-    <DropdownItemDeprecated
+    </DropdownItem>,
+    <DropdownItem
       key={KEBAB_ACTION_EDIT_ANNOTATIONS_ID}
-      component="button"
       onClick={() => launchAnnotationsModal()}
       isDisabled={!canEditCronTab[0]}
       data-test-action={KEBAB_ACTION_EDIT_ANNOTATIONS_ID}
     >
       {t("Edit annotations")}
-    </DropdownItemDeprecated>,
-    <DropdownItemDeprecated
+    </DropdownItem>,
+    <DropdownItem
       key={KEBAB_ACTION_EDIT_ID}
-      component="button"
       onClick={() => history.push(editURL)}
       isDisabled={!canEditCronTab[0]}
       data-test-action={KEBAB_ACTION_EDIT_ID}
     >
       {t("Edit CronTab")}
-    </DropdownItemDeprecated>,
-    <DropdownItemDeprecated
+    </DropdownItem>,
+    <DropdownItem
       key={KEBAB_ACTION_DELETE_ID}
-      component="button"
       onClick={launchDeleteModal}
       isDisabled={!canDeleteCronTab[0]}
       data-test-action={KEBAB_ACTION_DELETE_ID}
     >
       {t("Delete CronTab")}
-    </DropdownItemDeprecated>,
+    </DropdownItem>,
   ];
 
   return (
-    <DropdownDeprecated
+    <Dropdown
       onSelect={onSelect}
-      toggle={
-        <KebabToggleDeprecated
+      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+        <MenuToggle
+          ref={toggleRef}
+          aria-label={t("Actions")}
+          variant="plain"
+          onClick={(isOpen) => onToggle(isOpen)}
+          isExpanded={isOpen}
+          icon={<EllipsisVIcon />}
           id={KEBAB_BUTTON_ID}
           data-test={KEBAB_BUTTON_ID}
-          onToggle={(e, isOpen) => onToggle(isOpen)}
         />
-      }
+      )}
       isOpen={isOpen}
-      isPlain
-      dropdownItems={dropdownItems}
-      position={DropdownPositionDeprecated.right}
-    />
+      popperProps={{ position: "right" }}
+      shouldFocusToggleOnSelect
+    >
+      <DropdownList>{dropdownItems}</DropdownList>
+    </Dropdown>
   );
 };
 
@@ -197,7 +201,7 @@ const tableColumnInfo = [
   { id: "image" },
   { id: "replicas" },
   { id: "created" },
-  { className: "pf-v5-c-table__action", id: "" },
+  { className: "pf-v6-c-table__action", id: "" },
 ];
 
 const cronTabListRow: React.FC<RowProps<CronTabKind>> = ({
