@@ -4,25 +4,19 @@ import {
   K8sResourceCommon,
   ListPageBody,
   ListPageCreateLink,
-  ListPageFilter,
   ListPageHeader,
   Timestamp,
   useAccessReview,
   useK8sWatchResource,
   useLabelsModal,
-  useListPageFilter,
-  VirtualizedTable,
 } from "@openshift-console/dynamic-plugin-sdk";
 import { useCronTabTranslation } from "@crontab-utils/hooks/useCronTabTranslation";
 import {
   ResourceLink,
-  RowProps,
   TableColumn,
-  TableData,
   useAnnotationsModal,
   useDeleteModal,
 } from "@openshift-console/dynamic-plugin-sdk";
-import { sortable } from "@patternfly/react-table";
 import {
   Dropdown,
   DropdownItem,
@@ -41,6 +35,8 @@ import {
   KEBAB_ACTION_DELETE_ID,
   KEBAB_BUTTON_ID,
 } from "./const";
+import { ResourceDataView } from "../DataView/ResourceDataView";
+import { GetDataViewRows } from "../DataView/useResourceDataViewData";
 
 type CronTabListProps = {
   namespace: string;
@@ -55,9 +51,7 @@ const CronTabList: React.FC<CronTabListProps> = ({
   namespace,
   showTitle = true,
 }) => {
-  const [cronTabs, loaded, loadError] = useK8sWatchResource<
-    K8sResourceCommon[]
-  >({
+  const [cronTabs, loaded] = useK8sWatchResource<K8sResourceCommon[]>({
     isList: true,
     groupVersionKind: cronTabGroupVersionKind,
     namespaced: true,
@@ -65,7 +59,6 @@ const CronTabList: React.FC<CronTabListProps> = ({
   });
   const { t } = useCronTabTranslation();
   const columns = useCronTabColumns();
-  const [data, filteredData, onFilterChange] = useListPageFilter(cronTabs);
   const createAccessReview = {
     groupVersionKind: cronTabGroupVersionKind,
     namespace: namespace || "default",
@@ -88,19 +81,13 @@ const CronTabList: React.FC<CronTabListProps> = ({
         </ListPageCreateLink>
       </ListPageHeader>
       <ListPageBody>
-        <ListPageFilter
-          data={data}
+        <ResourceDataView
+          data={cronTabs as CronTabKind[]}
           loaded={loaded}
-          onFilterChange={onFilterChange}
-        />
-        <VirtualizedTable<CronTabKind>
-          data={filteredData}
-          unfilteredData={cronTabs}
-          loaded={loaded}
-          loadError={loadError}
           columns={columns}
-          Row={cronTabListRow}
-          label={t("CronTabs")}
+          initialFilters={{ name: "", labels: "" }}
+          getDataViewRows={getDataViewRows}
+          hideColumnManagement={true}
         />
       </ListPageBody>
     </>
@@ -205,49 +192,16 @@ const CronTabKebab: React.FC<CronTabKebabProps> = ({ obj }) => {
 };
 
 const tableColumnInfo = [
-  { id: "name" },
+  {
+    id: "name",
+  },
   { id: "namespace" },
   { id: "cronspec" },
   { id: "image" },
   { id: "replicas" },
   { id: "created" },
-  { className: "pf-v6-c-table__action", id: "" },
+  { id: "actions" },
 ];
-
-const cronTabListRow: React.FC<RowProps<CronTabKind>> = ({
-  obj,
-  activeColumnIDs,
-}) => {
-  return (
-    <>
-      <TableData {...tableColumnInfo[0]} activeColumnIDs={activeColumnIDs}>
-        <ResourceLink
-          groupVersionKind={cronTabGroupVersionKind}
-          name={obj.metadata.name}
-          namespace={obj.metadata.namespace}
-        />
-      </TableData>
-      <TableData {...tableColumnInfo[1]} activeColumnIDs={activeColumnIDs}>
-        <ResourceLink kind="Namespace" name={obj.metadata.namespace} />
-      </TableData>
-      <TableData {...tableColumnInfo[2]} activeColumnIDs={activeColumnIDs}>
-        {obj.spec.cronSpec}
-      </TableData>
-      <TableData {...tableColumnInfo[3]} activeColumnIDs={activeColumnIDs}>
-        {obj.spec.image}
-      </TableData>
-      <TableData {...tableColumnInfo[4]} activeColumnIDs={activeColumnIDs}>
-        {obj.spec.replicas}
-      </TableData>
-      <TableData {...tableColumnInfo[5]} activeColumnIDs={activeColumnIDs}>
-        <Timestamp timestamp={obj.metadata.creationTimestamp} />
-      </TableData>
-      <TableData {...tableColumnInfo[6]} activeColumnIDs={activeColumnIDs}>
-        <CronTabKebab obj={obj} />
-      </TableData>
-    </>
-  );
-};
 
 const useCronTabColumns = () => {
   const { t } = useCronTabTranslation();
@@ -256,49 +210,109 @@ const useCronTabColumns = () => {
       {
         title: t("Name"),
         id: tableColumnInfo[0].id,
-        transforms: [sortable],
         sort: "metadata.name",
+        props: {
+          isStickyColumn: true,
+        },
       },
       {
         title: t("Namespace"),
         id: tableColumnInfo[1].id,
-        transforms: [sortable],
         sort: "metadata.namespace",
       },
       {
         title: t("CronSpec"),
         id: tableColumnInfo[2].id,
-        transforms: [sortable],
         sort: "spec.cronSpec",
       },
       {
         title: t("Image"),
         id: tableColumnInfo[3].id,
-        transforms: [sortable],
         sort: "spec.image",
       },
       {
         title: t("Replicas"),
         id: tableColumnInfo[4].id,
-        transforms: [sortable],
         sort: "spec.replicas",
       },
       {
         title: t("Created"),
         id: tableColumnInfo[5].id,
-        transforms: [sortable],
         sort: "metadata.creationTimestamp",
       },
       {
         title: "",
         id: tableColumnInfo[6].id,
-        props: { className: tableColumnInfo[6].className },
+        props: {
+          isStickyColumn: true,
+          stickyMinWidth: "0",
+          isActionCell: true,
+        },
       },
     ],
     [t]
   );
 
   return columns;
+};
+
+const getDataViewRows: GetDataViewRows<CronTabKind, undefined> = (
+  data,
+  columns
+) => {
+  return data.map(({ obj }) => {
+    const { name, namespace, creationTimestamp } = obj.metadata;
+    const { cronSpec, image, replicas } = obj.spec;
+
+    const rowCells = {
+      [tableColumnInfo[0].id]: {
+        cell: (
+          <ResourceLink
+            groupVersionKind={cronTabGroupVersionKind}
+            name={name}
+            namespace={namespace}
+          />
+        ),
+        props: {
+          isStickyColumn: true,
+          hasRightBorder: true,
+        },
+      },
+      [tableColumnInfo[1].id]: {
+        cell: <ResourceLink kind="Namespace" name={namespace} />,
+      },
+      [tableColumnInfo[2].id]: {
+        cell: cronSpec,
+      },
+      [tableColumnInfo[3].id]: {
+        cell: image,
+      },
+      [tableColumnInfo[4].id]: {
+        cell: replicas,
+      },
+      [tableColumnInfo[5].id]: {
+        cell: <Timestamp timestamp={creationTimestamp} />,
+      },
+      [tableColumnInfo[6].id]: {
+        cell: <CronTabKebab obj={obj} />,
+        props: {
+          isStickyColumn: true,
+          stickyMinWidth: "0",
+          hasLeftBorder: true,
+          isActionCell: true,
+        },
+      },
+    };
+
+    return columns.map(({ id }) => {
+      const cell = rowCells[id]?.cell || <span>-</span>;
+      return {
+        id,
+        props: rowCells[id]?.props,
+        cell,
+      };
+    });
+  });
 };
 
 export default CronTabList;
