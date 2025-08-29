@@ -67,14 +67,16 @@ export const useResourceDataViewData = <
         sortFunction: sort,
         props: {
           className: props?.className,
-          sort: {
-            columnIndex: index,
-            sortBy: {
-              defaultDirection: SortByDirection.asc,
-              direction: SortByDirection.asc,
-              index: 0,
+          ...(sort && {
+            sort: {
+              columnIndex: index,
+              sortBy: {
+                defaultDirection: SortByDirection.asc,
+                direction: SortByDirection.asc,
+                index: 0,
+              },
             },
-          },
+          }),
           isStickyColumn: props?.isStickyColumn,
           stickyMinWidth: props?.stickyMinWidth,
           isActionCell: props?.isActionCell,
@@ -138,7 +140,10 @@ export const useResourceDataViewData = <
 
   // We have to tack sort information to the columns once all data is available
   dataViewColumns.forEach((column) => {
-    if (isDataViewConfigurableColumn(column)) {
+    if (
+      isDataViewConfigurableColumn(column) &&
+      column.sortFunction !== undefined
+    ) {
       column.props.sort.sortBy.index = sortBy.index;
       column.props.sort.sortBy.direction = sortBy.direction;
       column.props.sort.onSort = onSort;
