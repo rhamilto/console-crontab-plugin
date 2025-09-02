@@ -213,32 +213,48 @@ const useCronTabColumns = () => {
         sort: "metadata.name",
         props: {
           isStickyColumn: true,
+          modifier: "nowrap",
         },
       },
       {
         title: t("Namespace"),
         id: tableColumnInfo[1].id,
         sort: "metadata.namespace",
+        props: {
+          modifier: "nowrap",
+        },
       },
       {
         title: t("CronSpec"),
         id: tableColumnInfo[2].id,
         sort: "spec.cronSpec",
+        props: {
+          modifier: "nowrap",
+        },
       },
       {
         title: t("Image"),
         id: tableColumnInfo[3].id,
         sort: "spec.image",
+        props: {
+          modifier: "nowrap",
+        },
       },
       {
         title: t("Replicas"),
         id: tableColumnInfo[4].id,
         sort: "spec.replicas",
+        props: {
+          modifier: "nowrap",
+        },
       },
       {
         title: t("Created"),
         id: tableColumnInfo[5].id,
         sort: "metadata.creationTimestamp",
+        props: {
+          modifier: "nowrap",
+        },
       },
       {
         title: "",

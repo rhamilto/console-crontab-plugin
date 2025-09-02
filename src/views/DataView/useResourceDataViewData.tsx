@@ -80,6 +80,7 @@ export const useResourceDataViewData = <
           isStickyColumn: props?.isStickyColumn,
           stickyMinWidth: props?.stickyMinWidth,
           isActionCell: props?.isActionCell,
+          modifier: props?.modifier,
         } as ThProps,
         cell: title ? (
           <span>{title}</span>
