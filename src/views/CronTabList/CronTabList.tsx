@@ -203,6 +203,65 @@ const tableColumnInfo = [
   { id: "actions" },
 ];
 
+const getDataViewRows: GetDataViewRows<CronTabKind, undefined> = (
+  data,
+  columns
+) => {
+  return data.map(({ obj }) => {
+    const { name, namespace, creationTimestamp } = obj.metadata;
+    const { cronSpec, image, replicas } = obj.spec;
+
+    const rowCells = {
+      [tableColumnInfo[0].id]: {
+        cell: (
+          <ResourceLink
+            groupVersionKind={cronTabGroupVersionKind}
+            name={name}
+            namespace={namespace}
+          />
+        ),
+        props: {
+          isStickyColumn: true,
+          hasRightBorder: true,
+        },
+      },
+      [tableColumnInfo[1].id]: {
+        cell: <ResourceLink kind="Namespace" name={namespace} />,
+      },
+      [tableColumnInfo[2].id]: {
+        cell: cronSpec,
+      },
+      [tableColumnInfo[3].id]: {
+        cell: image,
+      },
+      [tableColumnInfo[4].id]: {
+        cell: replicas,
+      },
+      [tableColumnInfo[5].id]: {
+        cell: <Timestamp timestamp={creationTimestamp} />,
+      },
+      [tableColumnInfo[6].id]: {
+        cell: <CronTabKebab obj={obj} />,
+        props: {
+          isStickyColumn: true,
+          stickyMinWidth: "0",
+          hasLeftBorder: true,
+          isActionCell: true,
+        },
+      },
+    };
+
+    return columns.map(({ id }) => {
+      const cell = rowCells[id]?.cell || <span>-</span>;
+      return {
+        id,
+        props: rowCells[id]?.props,
+        cell,
+      };
+    });
+  });
+};
+
 const useCronTabColumns = () => {
   const { t } = useCronTabTranslation();
   const columns: TableColumn<CronTabKind>[] = React.useMemo(
@@ -270,65 +329,6 @@ const useCronTabColumns = () => {
   );
 
   return columns;
-};
-
-const getDataViewRows: GetDataViewRows<CronTabKind, undefined> = (
-  data,
-  columns
-) => {
-  return data.map(({ obj }) => {
-    const { name, namespace, creationTimestamp } = obj.metadata;
-    const { cronSpec, image, replicas } = obj.spec;
-
-    const rowCells = {
-      [tableColumnInfo[0].id]: {
-        cell: (
-          <ResourceLink
-            groupVersionKind={cronTabGroupVersionKind}
-            name={name}
-            namespace={namespace}
-          />
-        ),
-        props: {
-          isStickyColumn: true,
-          hasRightBorder: true,
-        },
-      },
-      [tableColumnInfo[1].id]: {
-        cell: <ResourceLink kind="Namespace" name={namespace} />,
-      },
-      [tableColumnInfo[2].id]: {
-        cell: cronSpec,
-      },
-      [tableColumnInfo[3].id]: {
-        cell: image,
-      },
-      [tableColumnInfo[4].id]: {
-        cell: replicas,
-      },
-      [tableColumnInfo[5].id]: {
-        cell: <Timestamp timestamp={creationTimestamp} />,
-      },
-      [tableColumnInfo[6].id]: {
-        cell: <CronTabKebab obj={obj} />,
-        props: {
-          isStickyColumn: true,
-          stickyMinWidth: "0",
-          hasLeftBorder: true,
-          isActionCell: true,
-        },
-      },
-    };
-
-    return columns.map(({ id }) => {
-      const cell = rowCells[id]?.cell || <span>-</span>;
-      return {
-        id,
-        props: rowCells[id]?.props,
-        cell,
-      };
-    });
-  });
 };
 
 export default CronTabList;
