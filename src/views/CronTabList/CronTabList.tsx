@@ -192,15 +192,13 @@ const CronTabKebab: React.FC<CronTabKebabProps> = ({ obj }) => {
 };
 
 const tableColumnInfo = [
-  {
-    id: "name",
-  },
+  { id: "name" },
   { id: "namespace" },
   { id: "cronspec" },
   { id: "image" },
   { id: "replicas" },
   { id: "created" },
-  { id: "actions" },
+  { id: "" },
 ];
 
 const getDataViewRows: GetDataViewRows<CronTabKind, undefined> = (
