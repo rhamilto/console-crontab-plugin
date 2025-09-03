@@ -319,7 +319,6 @@ const useCronTabColumns = () => {
         props: {
           isStickyColumn: true,
           stickyMinWidth: "0",
-          isActionCell: true,
         },
       },
     ],
