@@ -16,14 +16,34 @@ export const useResourceDataViewSort = <
   sortColumnIndex?: number;
   sortDirection?: SortByDirection;
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize sort state from URL params or defaults
+  const getInitialSortState = React.useCallback(() => {
+    const sortByParam = searchParams.get("sortBy");
+    const orderByParam = searchParams.get("orderBy");
+
+    if (sortByParam && columns.length > 0) {
+      const columnIndex = _.findIndex(columns, { title: sortByParam });
+      if (columnIndex >= 0) {
+        const direction =
+          orderByParam === SortByDirection.desc.valueOf()
+            ? SortByDirection.desc
+            : SortByDirection.asc;
+        return { index: columnIndex, direction };
+      }
+    }
+
+    return {
+      index: sortColumnIndex ?? 0,
+      direction: sortDirection ?? SortByDirection.asc,
+    };
+  }, [searchParams, columns, sortColumnIndex, sortDirection]);
+
   const [sortBy, setSortBy] = React.useState<{
     index: number;
     direction: SortByDirection;
-  }>({
-    index: sortColumnIndex ?? 0,
-    direction: sortDirection ?? SortByDirection.asc,
-  });
-  const [searchParams, setSearchParams] = useSearchParams();
+  }>(getInitialSortState);
 
   const applySort = React.useCallback(
     (index: number, direction: SortByDirection) => {
@@ -42,22 +62,20 @@ export const useResourceDataViewSort = <
     [columns, setSearchParams]
   );
 
+  // Update sort state when columns change or URL params change
   React.useEffect(() => {
-    const columnIndex = _.findIndex(columns, {
-      title: searchParams.get("sortBy"),
+    const newSortState = getInitialSortState();
+    setSortBy((prevState) => {
+      // Only update if the state actually changed
+      if (
+        prevState.index !== newSortState.index ||
+        prevState.direction !== newSortState.direction
+      ) {
+        return newSortState;
+      }
+      return prevState;
     });
-
-    if (!Number.isNaN(columnIndex) && columns[columnIndex]) {
-      const sortOrder =
-        searchParams.get("sortBy") === SortByDirection.desc.valueOf()
-          ? SortByDirection.desc
-          : SortByDirection.asc;
-
-      console.log("==> sortOrder", sortOrder);
-
-      setSortBy({ index: columnIndex, direction: sortOrder });
-    }
-  }, [columns, searchParams]);
+  }, [getInitialSortState]);
 
   const onSort = React.useCallback(
     (
