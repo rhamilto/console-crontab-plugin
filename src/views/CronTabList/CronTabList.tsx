@@ -1,7 +1,6 @@
 import React from "react";
 import { CronTabKind } from "@crontab-model/types";
 import {
-  K8sResourceCommon,
   ListPageBody,
   ListPageCreateLink,
   ListPageHeader,
@@ -51,7 +50,7 @@ const CronTabList: React.FC<CronTabListProps> = ({
   namespace,
   showTitle = true,
 }) => {
-  const [cronTabs, loaded] = useK8sWatchResource<K8sResourceCommon[]>({
+  const [cronTabs, loaded] = useK8sWatchResource<CronTabKind[]>({
     isList: true,
     groupVersionKind: cronTabGroupVersionKind,
     namespaced: true,
@@ -82,7 +81,7 @@ const CronTabList: React.FC<CronTabListProps> = ({
       </ListPageHeader>
       <ListPageBody>
         <ResourceDataView
-          data={cronTabs as CronTabKind[]}
+          data={cronTabs}
           loaded={loaded}
           columns={columns}
           initialFilters={{ name: "", labels: "" }}
